@@ -96,23 +96,43 @@ input{font-family:"DM Mono",monospace;}
 .ex-done-count{font-size:12px;color:var(--green);margin-top:6px;font-family:"DM Mono",monospace;}
 
 /* ------- Set rows ------- */
-.sets{border-top:1px solid var(--border2);padding:10px 10px 14px;}
-.set-row{display:flex;align-items:center;gap:6px;padding:8px 4px;border-radius:12px;}
+.sets{border-top:1px solid var(--border2);padding:10px 8px 14px;}
+.set-row{display:flex;align-items:center;gap:4px;padding:8px 2px;border-radius:12px;}
 .set-row.done{background:rgba(34,197,94,.08);}
-.set-label{width:30px;font-family:"DM Mono",monospace;font-size:14px;color:var(--dim);flex-shrink:0;text-align:center;}
-.stepper{display:flex;align-items:center;gap:4px;flex:1;min-width:0;}
-.step-btn{width:40px;height:48px;border-radius:10px;background:var(--bg-input);color:var(--dim);border:1px solid var(--border2);font-size:20px;flex-shrink:0;}
+.set-label{width:26px;font-family:"DM Mono",monospace;font-size:13px;color:var(--dim);flex-shrink:0;text-align:center;}
+.stepper{display:flex;align-items:center;gap:3px;flex:1;min-width:0;}
+.step-btn{width:34px;height:48px;border-radius:10px;background:var(--bg-input);color:var(--dim);border:1px solid var(--border2);font-size:19px;flex-shrink:0;padding:0;}
 .step-btn:active{background:var(--border2);color:var(--text);}
-.num-input{flex:1;min-width:0;width:100%;height:48px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:21px;text-align:center;padding:0 4px;}
+.num-input{flex:1;min-width:0;width:100%;height:48px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:17px;text-align:center;padding:0 2px;}
 .num-input:focus{outline:none;border-color:var(--blue);}
-.check-btn{width:56px;height:56px;border-radius:14px;background:var(--green);color:#052e12;font-size:26px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.check-btn{width:50px;height:52px;border-radius:14px;background:var(--green);color:#052e12;font-size:24px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .check-btn.done{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.4);}
-.set-ref{font-size:12px;color:var(--dim2);font-family:"DM Mono",monospace;padding:0 4px 6px 40px;}
+.set-ref{font-size:12px;color:var(--dim2);font-family:"DM Mono",monospace;padding:0 4px 6px 34px;}
 .set-ref .ok{color:var(--green);}
+
+/* ------- Finalizar / peso corporal ------- */
+.finish-btn{width:100%;height:58px;margin-top:16px;border-radius:14px;background:var(--green);color:#052e12;font-size:18px;font-weight:700;font-family:"Barlow Condensed",sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.finish-btn:disabled{background:var(--bg-input);color:var(--dim2);}
+.finish-card{margin-top:16px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.4);border-radius:14px;padding:16px;text-align:center;}
+.finish-card .fc-title{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:800;color:var(--green);text-transform:uppercase;}
+.finish-card .fc-sub{color:var(--dim);font-size:13.5px;margin-top:4px;font-family:"DM Mono",monospace;}
+.finish-card button{margin-top:12px;background:var(--bg-input);color:var(--text);border:1px solid var(--border);border-radius:12px;height:48px;padding:0 18px;font-size:15px;font-weight:600;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:90;display:flex;align-items:center;justify-content:center;padding:24px;}
+.dialog{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:340px;}
+.dialog h3{font-family:"Barlow Condensed",sans-serif;font-size:22px;margin:0 0 4px;text-transform:uppercase;}
+.dialog .dlg-sub{color:var(--dim);font-size:13px;margin-bottom:14px;}
+.dialog .dlg-row{display:flex;gap:8px;}
+.dialog input{flex:1;min-width:0;height:52px;background:var(--bg-input);border:1px solid var(--blue);border-radius:12px;color:var(--text);font-size:22px;text-align:center;}
+.dialog .dlg-actions{display:flex;gap:8px;margin-top:14px;}
+.dialog .dlg-actions button{flex:1;height:48px;border-radius:12px;font-size:15px;font-weight:600;}
+.dlg-save{background:var(--blue);color:#04101f;}
+.dlg-cancel{background:var(--bg-input);color:var(--dim);border:1px solid var(--border2);}
 .rir-row{display:flex;align-items:center;gap:6px;padding:2px 4px 10px 40px;}
 .rir-label{font-size:12px;color:var(--orange);font-family:"DM Mono",monospace;margin-right:2px;}
 .rir-chip{min-width:40px;height:40px;border-radius:10px;background:var(--bg-input);color:var(--dim);border:1px solid var(--border2);font-family:"DM Mono",monospace;font-size:15px;}
 .rir-chip.sel{background:rgba(245,158,11,.15);color:var(--orange);border-color:var(--orange);}
+.pc-chip{margin-left:auto;min-width:44px;height:40px;border-radius:10px;background:var(--bg-input);color:var(--dim);border:1px solid var(--border2);font-family:"DM Mono",monospace;font-size:14px;font-weight:500;}
+.pc-chip.sel{background:rgba(45,212,191,.15);color:var(--teal);border-color:var(--teal);}
 
 /* ------- Rest day ------- */
 .restday{margin-top:40px;text-align:center;padding:40px 20px;background:var(--bg-card);border:1px solid var(--border2);border-radius:16px;}
@@ -155,6 +175,12 @@ const saveTargets = (t) => localStorage.setItem(TARGET_KEY, JSON.stringify(t));
 const NOTES_KEY = 'gym_tracker_notes';
 const loadNotes = () => { try { return JSON.parse(localStorage.getItem(NOTES_KEY)) || {}; } catch(e){ return {}; } };
 const saveNotes = (n) => localStorage.setItem(NOTES_KEY, JSON.stringify(n));
+const BW_KEY = 'gym_tracker_bodyweight';
+const loadBW = () => { try { return JSON.parse(localStorage.getItem(BW_KEY)) || {}; } catch(e){ return {}; } };
+const saveBW = (b) => localStorage.setItem(BW_KEY, JSON.stringify(b));
+const SESS_KEY_META = 'gym_tracker_sessions_meta';
+const loadSessMeta = () => { try { return JSON.parse(localStorage.getItem(SESS_KEY_META)) || {}; } catch(e){ return {}; } };
+const saveSessMeta = (s) => localStorage.setItem(SESS_KEY_META, JSON.stringify(s));
 
 /* ============ Utils ============ */
 const vibrate = (p) => { if (navigator.vibrate) navigator.vibrate(p); };
@@ -322,7 +348,7 @@ function TimerBar({timer, onAdd, onSkip}){
   );
 }
 
-function SetRow({idx, total, data, ref_, isTime, hasWeight, onChange, onCheck}){
+function SetRow({idx, total, data, ref_, isTime, hasWeight, optionalWeight, onChange, onCheck, onPC}){
   const wStep = 2.5, rStep = 1;
   const bump = (field, delta, step) => {
     const cur = parseFloat(String(data[field]).replace(',','.')) || 0;
@@ -336,7 +362,7 @@ function SetRow({idx, total, data, ref_, isTime, hasWeight, onChange, onCheck}){
         {hasWeight && (
           <div className="stepper">
             <button className="step-btn" onClick={()=>bump('weight',-1,wStep)}>−</button>
-            <input className="num-input" type="text" inputMode="decimal" placeholder="kg"
+            <input className="num-input" type="text" inputMode="decimal" placeholder={optionalWeight ? 'kg?' : 'kg'}
               value={data.weight} onChange={e=>onChange('weight', e.target.value)} />
             <button className="step-btn" onClick={()=>bump('weight',+1,wStep)}>+</button>
           </div>
@@ -355,17 +381,19 @@ function SetRow({idx, total, data, ref_, isTime, hasWeight, onChange, onCheck}){
           <button key={v} className={'rir-chip' + (data.rir === v ? ' sel' : '')}
             onClick={()=>onChange('rir', data.rir === v ? '' : v)}>{v}</button>
         ))}
+        {hasWeight && <button className={'pc-chip' + (data.pc ? ' sel' : '')} title="Usar peso corporal" onClick={onPC}>PC</button>}
       </div>
       {ref_ && <div className="set-ref">Ref: {ref_}{data.done ? <span className="ok"> · hecha</span> : null}</div>}
     </div>
   );
 }
 
-function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded, onToggle, target, onSetTarget}){
+function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded, onToggle, target, onSetTarget, bwKg, onNoBW}){
   const today = todayStr();
   const lastRec = useMemo(()=>lastSessionFor(history, ex.name, today), [history, ex.name]);
   const prog = useMemo(()=>progression(ex, lastRec, dayCtx), [ex, lastRec, dayCtx]);
-  const hasWeight = ex.kind === 'exercise';
+  const hasWeight = true;                          // el core también admite lastre/polea
+  const optionalWeight = ex.kind === 'core';       // en core el peso es opcional
   const isTime = ex.isTime;
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetDraft, setTargetDraft] = useState('');
@@ -377,18 +405,38 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
 
   const initialRows = () => Array.from({length: ex.sets}, (_,i) => {
     const saved = todayRec && todayRec.sets.find(s => s.set_num === i+1);
-    if (saved) return { weight: saved.weight_kg != null ? String(saved.weight_kg).replace('.',',') : '', reps: String(saved.reps), rir: (saved.rir != null ? saved.rir : ''), done:true };
-    let w = '';
+    if (saved) return { weight: saved.weight_kg != null ? String(saved.weight_kg).replace('.',',') : '', reps: String(saved.reps), rir: (saved.rir != null ? saved.rir : ''), pc: !!saved.pc, done:true };
+    let w = '', pc = false;
     if (hasWeight){
       if (i === 0){
         if (target && target.weight != null) w = String(target.weight).replace('.',',');
-        else if (lastRec && lastRec.sets[0] && lastRec.sets[0].weight_kg != null) w = String(lastRec.sets[0].weight_kg).replace('.',',');
+        else if (lastRec && lastRec.sets[0] && lastRec.sets[0].weight_kg != null){
+          // Si la última vez fue a peso corporal, usar el PC actual
+          if (lastRec.sets[0].pc && bwKg != null){ w = String(bwKg).replace('.',','); pc = true; }
+          else w = String(lastRec.sets[0].weight_kg).replace('.',',');
+        }
       }
     }
-    return { weight: w, reps: '', rir: '', done:false };
+    return { weight: w, reps: '', rir: '', pc, done:false };
   });
   const [rows, setRows] = useState(initialRows);
   useEffect(()=>{ setRows(initialRows()); }, [ex.raw, sessionKey]); // reset al cambiar de día/ejercicio
+
+  const change = (i, field, val) => setRows(rs => rs.map((r,j)=> {
+    if (j!==i) return r;
+    const nr = {...r, [field]:val};
+    if (field === 'weight') nr.pc = false;   // editar el peso a mano desactiva PC
+    return nr;
+  }));
+  const togglePC = (i) => {
+    if (bwKg == null){ onNoBW(); return; }
+    setRows(rs => rs.map((r,j)=> {
+      if (j!==i) return r;
+      if (r.pc) return {...r, pc:false, weight:''};
+      return {...r, pc:true, weight: String(bwKg).replace('.',',')};
+    }));
+    vibrate(30);
+  };
 
   const saveTarget = () => {
     const w = parseFloat(String(targetDraft).replace(',','.'));
@@ -401,23 +449,28 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
   };
   const clearTarget = () => { onSetTarget(ex.name, null); vibrate(40); };
 
-  const change = (i, field, val) => setRows(rs => rs.map((r,j)=> j===i ? {...r, [field]:val} : r));
   const check = (i) => {
     const r = rows[i];
     const reps = parseInt(String(r.reps).replace(',','.'),10);
     if (isNaN(reps)) { return; }
-    const weight = hasWeight ? parseFloat(String(r.weight).replace(',','.')) : null;
-    if (hasWeight && (weight == null || isNaN(weight))) return;
+    let weight = null;
+    const rawW = String(r.weight).trim();
+    if (rawW !== ''){
+      weight = parseFloat(rawW.replace(',','.'));
+      if (isNaN(weight)) return;
+    } else if (!optionalWeight){
+      return; // peso obligatorio en ejercicios principales
+    }
     const rir = (r.rir === '' || r.rir == null) ? null : r.rir;
     vibrate(60);
-    // pre-rellenar siguiente serie con el mismo peso
+    // pre-rellenar siguiente serie con el mismo peso (y flag PC)
     setRows(rs => rs.map((row,j)=>{
       if (j===i) return {...row, done:true};
-      if (j===i+1 && hasWeight && !row.done && row.weight==='') return {...row, weight: r.weight};
+      if (j===i+1 && hasWeight && !row.done && row.weight==='') return {...row, weight: r.weight, pc: r.pc};
       return row;
     }));
     const nextLabel = i+1 < ex.sets ? ('Serie '+(i+2)+' de '+ex.sets) : null;
-    onSetDone(ex, i+1, weight, reps, rir, nextLabel);
+    onSetDone(ex, i+1, weight, reps, rir, r.pc, nextLabel);
   };
 
   const doneCount = rows.filter(r=>r.done).length;
@@ -425,11 +478,11 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
     if (!lastRec) return null;
     const s = lastRec.sets.find(s=>s.set_num===i+1) || lastRec.sets[lastRec.sets.length-1];
     if (!s) return null;
-    return (s.weight_kg != null ? fmtKg(s.weight_kg)+' kg × ' : '') + s.reps + (isTime?'s':' reps')
+    return (s.pc ? 'PC ' : '') + (s.weight_kg != null ? fmtKg(s.weight_kg)+' kg × ' : '') + s.reps + (isTime?'s':' reps')
       + (s.rir != null ? ' @RIR'+s.rir : '');
   };
   const lastSummary = lastRec && lastRec.sets.length
-    ? (lastRec.sets[0].weight_kg != null ? fmtKg(lastRec.sets[0].weight_kg)+' kg × ' : '') + lastRec.sets[0].reps + (isTime?'s':'')
+    ? (lastRec.sets[0].pc ? 'PC ' : '') + (lastRec.sets[0].weight_kg != null ? fmtKg(lastRec.sets[0].weight_kg)+' kg × ' : '') + lastRec.sets[0].reps + (isTime?'s':'')
       + (lastRec.sets[0].rir != null ? ' @RIR'+lastRec.sets[0].rir : '')
     : null;
 
@@ -483,8 +536,8 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
         <div className="sets">
           {rows.map((r,i)=>(
             <SetRow key={i} idx={i} total={ex.sets} data={r} ref_={refFor(i)}
-              isTime={isTime} hasWeight={hasWeight}
-              onChange={(f,v)=>change(i,f,v)} onCheck={()=>check(i)} />
+              isTime={isTime} hasWeight={hasWeight} optionalWeight={optionalWeight}
+              onChange={(f,v)=>change(i,f,v)} onCheck={()=>check(i)} onPC={()=>togglePC(i)} />
           ))}
         </div>
       )}
@@ -498,9 +551,26 @@ function App(){
   const [history, setHistory] = useState(loadHist);
   const [targets, setTargets] = useState(loadTargets);
   const [notes, setNotes] = useState(loadNotes);
+  const [bodyweight, setBodyweight] = useState(loadBW);
+  const [sessMeta, setSessMeta] = useState(loadSessMeta);
+  const [bwOpen, setBwOpen] = useState(false);
+  const [bwDraft, setBwDraft] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const importRef = useRef();
+
+  const saveBodyweight = () => {
+    const w = parseFloat(String(bwDraft).replace(',','.'));
+    if (isNaN(w)){ setBwOpen(false); return; }
+    setBodyweight(b => { const nb = {...b, [todayStr()]: w}; saveBW(nb); return nb; });
+    setBwOpen(false);
+    vibrate(40);
+    showToast('Peso corporal guardado: '+fmtKg(w)+' kg');
+  };
+  const lastBW = useMemo(()=>{
+    const dates = Object.keys(bodyweight).sort();
+    return dates.length ? { date: dates[dates.length-1], kg: bodyweight[dates[dates.length-1]] } : null;
+  }, [bodyweight]);
 
   const setTarget = (name, weight) => {
     setTargets(t => {
@@ -580,7 +650,7 @@ function App(){
   const skipTimer = () => setTimer(null);
 
   /* --- Guardar serie --- */
-  const onSetDone = useCallback((ex, setNum, weight, reps, rir, nextSetLabel) => {
+  const onSetDone = useCallback((ex, setNum, weight, reps, rir, pc, nextSetLabel) => {
     const today = todayStr();
     setHistory(h => {
       const nh = [...h];
@@ -592,6 +662,7 @@ function App(){
       rec.sets = rec.sets.filter(s => s.set_num !== setNum);
       const setData = { set_num: setNum, weight_kg: weight, reps };
       if (rir != null) setData.rir = rir;
+      if (pc) setData.pc = true;
       rec.sets.push(setData);
       rec.sets.sort((a,b)=>a.set_num-b.set_num);
       saveHist(nh);
@@ -651,7 +722,7 @@ function App(){
     vibrate(60);
   };
   const exportHistory = () => {
-    downloadJSON({ formato:'gym_tracker_backup', historial: history, notas: notes }, 'progreso_gym_'+todayStr()+'.json');
+    downloadJSON({ formato:'gym_tracker_backup', historial: history, notas: notes, peso_corporal: bodyweight, sesiones: sessMeta }, 'progreso_gym_'+todayStr()+'.json');
     showToast('Historial completo exportado');
     setMenuOpen(false);
   };
@@ -663,11 +734,24 @@ function App(){
       formato:'gym_tracker_sesion',
       fecha: lastDate,
       semana: recs[0] ? recs[0].week_num : null,
+      finalizada: !!(sessMeta[lastDate]),
+      peso_corporal_kg: bodyweight[lastDate] != null ? bodyweight[lastDate] : (lastBW ? lastBW.kg : null),
       notas_sesion: notes[lastDate] || null,
       ejercicios: recs
     }, 'ultima_sesion_'+lastDate+'.json');
     showToast('Última sesión ('+lastDate+') exportada');
     setMenuOpen(false);
+  };
+  const finishSession = () => {
+    const today = todayStr();
+    setSessMeta(s => {
+      const ns = {...s, [today]: { session_key: sessionKey, finished_at: new Date().toISOString() }};
+      saveSessMeta(ns);
+      return ns;
+    });
+    setTimer(null);
+    setExpandedEx(null);
+    vibrate([100,60,100]);
   };
   const importHistory = (e) => {
     const f = e.target.files[0];
@@ -683,6 +767,8 @@ function App(){
         saveHist(hist);
         setHistory(hist);
         if (nts){ saveNotes(nts); setNotes(nts); }
+        if (data.peso_corporal){ saveBW(data.peso_corporal); setBodyweight(data.peso_corporal); }
+        if (data.sesiones){ saveSessMeta(data.sesiones); setSessMeta(data.sesiones); }
         showToast('Historial restaurado ('+hist.length+' registros)');
       } catch(err){ showToast('Archivo no válido'); }
     };
@@ -735,6 +821,7 @@ function App(){
         <TimerBar timer={timer} onAdd={addTime} onSkip={skipTimer}/>
         {menuOpen && (
           <div className="menu">
+            <button onClick={()=>{ setBwDraft(lastBW ? String(lastBW.kg).replace('.',',') : ''); setBwOpen(true); setMenuOpen(false); }}>⚖ Peso corporal{lastBW ? ' ('+fmtKg(lastBW.kg)+' kg)' : ''}</button>
             <button onClick={exportLastSession}>⬇ Exportar última sesión</button>
             <button onClick={exportHistory}>⬇ Exportar todo el historial</button>
             <button onClick={()=>importRef.current.click()}>⬆ Importar progreso</button>
@@ -799,23 +886,65 @@ function App(){
                   onSetDone={onSetDone}
                   target={targets[normName(b.name)] || null}
                   onSetTarget={setTarget}
+                  bwKg={lastBW ? lastBW.kg : null}
+                  onNoBW={()=>{ showToast('Registra primero tu peso corporal'); setBwDraft(''); setBwOpen(true); }}
                   expanded={expandedEx === id}
                   onToggle={()=>setExpandedEx(e => e===id ? null : id)} />
               );
             })}
 
-            {isToday && (
-              <div className="notes-card">
-                <div className="notes-title">📝 NOTAS DE LA SESIÓN</div>
-                <div className="notes-sub">Sensaciones, molestias, energía, sueño… Se incluyen al exportar la sesión.</div>
-                <textarea className="notes-area" placeholder="Ej: codo bien hoy, banca costó más de lo normal, dormí 6h…"
-                  value={notes[todayStr()] || ''}
-                  onChange={e=>setNoteFor(todayStr(), e.target.value)} />
+            <div className="notes-card">
+              <div className="notes-title">📝 NOTAS DE LA SESIÓN</div>
+              <div className="notes-sub">
+                {isToday
+                  ? 'Sensaciones, molestias, energía, sueño… Se incluyen al exportar la sesión.'
+                  : 'Estás viendo otro día del plan, pero las series y notas se guardan con la fecha de hoy ('+todayStr()+').'}
               </div>
-            )}
+              <textarea className="notes-area" placeholder="Ej: codo bien hoy, banca costó más de lo normal, dormí 6h…"
+                value={notes[todayStr()] || ''}
+                onChange={e=>setNoteFor(todayStr(), e.target.value)} />
+            </div>
+
+            {(() => {
+              const today = todayStr();
+              const todayRecs = history.filter(r => r.date === today && r.session_key === sessionKey);
+              const totalSets = todayRecs.reduce((a,r)=>a+r.sets.length, 0);
+              const finished = sessMeta[today] && sessMeta[today].session_key === sessionKey;
+              if (finished){
+                const t = new Date(sessMeta[today].finished_at);
+                return (
+                  <div className="finish-card">
+                    <div className="fc-title">✔ Entrenamiento finalizado</div>
+                    <div className="fc-sub">{todayRecs.length} ejercicios · {totalSets} series · {String(t.getHours()).padStart(2,'0')}:{String(t.getMinutes()).padStart(2,'0')}</div>
+                    <button onClick={exportLastSession}>⬇ Exportar esta sesión para revisarla</button>
+                  </div>
+                );
+              }
+              return (
+                <button className="finish-btn" disabled={totalSets === 0} onClick={finishSession}>
+                  {totalSets === 0 ? 'Registra alguna serie para finalizar' : '✔ Finalizar entrenamiento ('+totalSets+' series)'}
+                </button>
+              );
+            })()}
           </div>
         )}
       </div>
+      {bwOpen && (
+        <div className="overlay" onClick={()=>setBwOpen(false)}>
+          <div className="dialog" onClick={e=>e.stopPropagation()}>
+            <h3>⚖ Peso corporal</h3>
+            <div className="dlg-sub">Se guarda con la fecha de hoy y se incluye en los exports.{lastBW ? ' Último: '+fmtKg(lastBW.kg)+' kg ('+lastBW.date+')' : ''}</div>
+            <div className="dlg-row">
+              <input type="text" inputMode="decimal" placeholder="kg" autoFocus
+                value={bwDraft} onChange={e=>setBwDraft(e.target.value)} />
+            </div>
+            <div className="dlg-actions">
+              <button className="dlg-cancel" onClick={()=>setBwOpen(false)}>Cancelar</button>
+              <button className="dlg-save" onClick={saveBodyweight}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
