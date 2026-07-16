@@ -1,6 +1,6 @@
 {
-  "name": "Gym Tracker",
-  "short_name": "Gym",
+  "name": "Gymbro",
+  "short_name": "Gymbro",
   "description": "Guía de entrenamiento y registro serie a serie del plan de 26 semanas",
   "start_url": ".",
   "scope": ".",
