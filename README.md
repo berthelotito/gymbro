@@ -1,4 +1,4 @@
-# Gymbro
+# GymBro
 
 PWA mobile-first para seguir un plan de entrenamiento de 26 semanas en el gimnasio: sesión del día, registro serie a serie (peso, reps, RIR), timer de descanso, lógica de progresión, peso objetivo manual, notas de sesión y export/import de progreso.
 
