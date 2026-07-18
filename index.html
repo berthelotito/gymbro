@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
-<title>Gym Tracker</title>
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>GymBro</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -188,6 +189,9 @@ const normName = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowe
 const todayStr = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const fmtKg = (n) => (Math.round(n*100)/100).toString().replace('.',',');
+const slugify = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+  .replace(/[·]/g,'').replace(/[^a-z0-9+ ]/g,'').trim().replace(/\s+/g,'_');
+const shortDate = (iso) => { const [y,m,d] = iso.split('-'); return parseInt(d,10)+'_'+parseInt(m,10); };
 
 function firstMondayOf(plan){
   // Lunes de la semana de plan_start
@@ -321,7 +325,7 @@ function UploadScreen({onLoaded, error, setError}){
   return (
     <div className="upload">
       <div style={{fontSize:48}}>🏋️</div>
-      <h1>Gym Tracker</h1>
+      <h1>GymBro</h1>
       <p>Sube tu <span className="mono">plan_entrenamiento.json</span> para empezar. El plan y tu progreso se guardan en este dispositivo.</p>
       <button className="big-btn" onClick={()=>fileRef.current.click()}>Cargar plan</button>
       <input ref={fileRef} type="file" accept=".json,application/json" style={{display:'none'}} onChange={handleFile}/>
@@ -388,7 +392,7 @@ function SetRow({idx, total, data, ref_, isTime, hasWeight, optionalWeight, onCh
   );
 }
 
-function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded, onToggle, target, onSetTarget, bwKg, onNoBW}){
+function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded, onToggle, target, onSetTarget, bwKg, onNoBW, cardId}){
   const today = todayStr();
   const lastRec = useMemo(()=>lastSessionFor(history, ex.name, today), [history, ex.name]);
   const prog = useMemo(()=>progression(ex, lastRec, dayCtx), [ex, lastRec, dayCtx]);
@@ -489,8 +493,12 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
   const scheme = ex.sets+' × '+(ex.repsMin===ex.repsMax ? ex.repsMin : ex.repsMin+'-'+ex.repsMax)
     + (ex.perSide ? ex.perSide : '') + (isTime ? 's' : '');
 
+  const openTechnique = () => {
+    window.open('https://www.youtube.com/results?search_query='+encodeURIComponent('técnica '+ex.name+' ejercicio'), '_blank');
+  };
+
   return (
-    <div className="ex-card">
+    <div className="ex-card" id={'exc-'+cardId}>
       <button className="ex-head" onClick={onToggle}>
         <div className="ex-name"><span className="ex-num">{num}.</span>{ex.name}</div>
         <div className="ex-scheme">
@@ -528,6 +536,7 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
                 setEditingTarget(true);
               }}>✎ {target && target.weight != null ? 'Editar objetivo' : 'Fijar peso objetivo'}</button>
               {target && target.weight != null && <button className="target-btn clear" onClick={clearTarget}>✕ Quitar</button>}
+              <button className="target-btn" style={{marginLeft:'auto'}} onClick={openTechnique}>🎬 Ver técnica</button>
             </React.Fragment>
           )}
         </div>
@@ -670,6 +679,7 @@ function App(){
     });
     const nextLabel = nextSetLabel || nextExerciseName(ex);
     startTimer(ex.restSec || 60, nextLabel);
+    if (!nextSetLabel) advanceToNext(ex);   // última serie → pasar al siguiente ejercicio
   }, [sessionKey, selWeek, effectiveDay]);
 
   /* --- Bloques del día --- */
@@ -684,6 +694,24 @@ function App(){
   const nextExerciseName = (ex) => {
     const i = exBlocks.findIndex(b => b.raw === ex.raw);
     return i >= 0 && i+1 < exBlocks.length ? exBlocks[i+1].name : '¡Sesión completada!';
+  };
+  const advanceToNext = (ex) => {
+    const bi = blocks.findIndex(b => (b.kind==='exercise'||b.kind==='core') && b.raw === ex.raw);
+    if (bi < 0) return;
+    let next = -1;
+    for (let j = bi+1; j < blocks.length; j++){
+      if (blocks[j].kind==='exercise' || blocks[j].kind==='core'){ next = j; break; }
+    }
+    if (next >= 0){
+      const nid = sessionKey+'-'+next;
+      setExpandedEx(nid);
+      setTimeout(()=>{
+        const el = document.getElementById('exc-'+nid);
+        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 150);
+    } else {
+      setExpandedEx(null);   // era el último ejercicio de la sesión
+    }
   };
 
   /* --- Navegación días de fuerza --- */
@@ -726,20 +754,40 @@ function App(){
     showToast('Historial completo exportado');
     setMenuOpen(false);
   };
+  const dayLabelFor = (weekNum, dayIdx) => {
+    const w = weeks.find(x=>x.week_num===weekNum);
+    const d = w ? w.days.find(x=>x.day===dayIdx) : null;
+    return d && d.label ? d.label : 'entreno';
+  };
+  const sessionPayload = (date, recs) => ({
+    fecha: date,
+    semana: recs[0] ? recs[0].week_num : null,
+    entreno: recs[0] ? dayLabelFor(recs[0].week_num, recs[0].day) : null,
+    finalizada: !!(sessMeta[date]),
+    peso_corporal_kg: bodyweight[date] != null ? bodyweight[date] : (lastBW ? lastBW.kg : null),
+    notas_sesion: notes[date] || null,
+    ejercicios: recs
+  });
   const exportLastSession = () => {
     if (!history.length){ showToast('Sin registros todavía'); setMenuOpen(false); return; }
     const lastDate = history.map(r=>r.date).sort().pop();
     const recs = history.filter(r => r.date === lastDate);
+    const label = recs[0] ? dayLabelFor(recs[0].week_num, recs[0].day) : 'entreno';
+    downloadJSON({ formato:'gym_tracker_sesion', ...sessionPayload(lastDate, recs) },
+      slugify(label)+'_'+shortDate(lastDate)+'.json');
+    showToast('Sesión "'+label+'" exportada');
+    setMenuOpen(false);
+  };
+  const exportWeek = () => {
+    const recs = history.filter(r => r.week_num === selWeek);
+    if (!recs.length){ showToast('Sin registros en la semana '+selWeek); setMenuOpen(false); return; }
+    const dates = [...new Set(recs.map(r=>r.date))].sort();
     downloadJSON({
-      formato:'gym_tracker_sesion',
-      fecha: lastDate,
-      semana: recs[0] ? recs[0].week_num : null,
-      finalizada: !!(sessMeta[lastDate]),
-      peso_corporal_kg: bodyweight[lastDate] != null ? bodyweight[lastDate] : (lastBW ? lastBW.kg : null),
-      notas_sesion: notes[lastDate] || null,
-      ejercicios: recs
-    }, 'ultima_sesion_'+lastDate+'.json');
-    showToast('Última sesión ('+lastDate+') exportada');
+      formato:'gym_tracker_semana',
+      semana: selWeek,
+      sesiones: dates.map(d => sessionPayload(d, recs.filter(r=>r.date===d)))
+    }, 'semana_'+selWeek+'.json');
+    showToast('Semana '+selWeek+' exportada ('+dates.length+' sesiones)');
     setMenuOpen(false);
   };
   const finishSession = () => {
@@ -822,7 +870,8 @@ function App(){
         {menuOpen && (
           <div className="menu">
             <button onClick={()=>{ setBwDraft(lastBW ? String(lastBW.kg).replace('.',',') : ''); setBwOpen(true); setMenuOpen(false); }}>⚖ Peso corporal{lastBW ? ' ('+fmtKg(lastBW.kg)+' kg)' : ''}</button>
-            <button onClick={exportLastSession}>⬇ Exportar última sesión</button>
+            <button onClick={exportLastSession}>⬇ Exportar último entreno</button>
+            <button onClick={exportWeek}>⬇ Exportar semana S{selWeek}</button>
             <button onClick={exportHistory}>⬇ Exportar todo el historial</button>
             <button onClick={()=>importRef.current.click()}>⬆ Importar progreso</button>
             <button className="danger" onClick={deletePlan}>🗑️ Borrar plan</button>
@@ -888,6 +937,7 @@ function App(){
                   onSetTarget={setTarget}
                   bwKg={lastBW ? lastBW.kg : null}
                   onNoBW={()=>{ showToast('Registra primero tu peso corporal'); setBwDraft(''); setBwOpen(true); }}
+                  cardId={id}
                   expanded={expandedEx === id}
                   onToggle={()=>setExpandedEx(e => e===id ? null : id)} />
               );
