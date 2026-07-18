@@ -407,6 +407,18 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
     r.date === today && normName(r.exercise_name) === normName(ex.name) && r.session_key === sessionKey
   ), [history, ex.name, sessionKey]);
 
+  // Registro histórico de ESTA sesión del plan (otra fecha): para revisar semanas ya entrenadas
+  const pastRec = useMemo(()=>{
+    const recs = history.filter(r =>
+      r.session_key === sessionKey && normName(r.exercise_name) === normName(ex.name) && r.date !== today
+    );
+    if (!recs.length) return null;
+    recs.sort((a,b) => a.date < b.date ? 1 : -1);
+    return recs[0];
+  }, [history, ex.name, sessionKey]);
+
+  const fmtSet = (s) => (s.pc ? 'PC ' : '') + (s.weight_kg != null ? fmtKg(s.weight_kg)+'kg×' : '') + s.reps + (isTime?'s':'') + (s.rir != null ? '@R'+s.rir : '');
+
   const initialRows = () => Array.from({length: ex.sets}, (_,i) => {
     const saved = todayRec && todayRec.sets.find(s => s.set_num === i+1);
     if (saved) return { weight: saved.weight_kg != null ? String(saved.weight_kg).replace('.',',') : '', reps: String(saved.reps), rir: (saved.rir != null ? saved.rir : ''), pc: !!saved.pc, done:true };
@@ -515,6 +527,7 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
           </div>
         )}
         {lastSummary && <div className="ex-last">Última: {lastSummary}</div>}
+        {pastRec && <div className="ex-done-count">✓ Entrenado el {pastRec.date}: {pastRec.sets.map(fmtSet).join(' · ')}</div>}
         {target && target.weight != null
           ? <div className="prog target">🎯 Objetivo manual: {fmtKg(target.weight)} kg</div>
           : (prog.text && <div className={'prog '+prog.type}>{prog.text}</div>)}
@@ -566,6 +579,7 @@ function App(){
   const [bwDraft, setBwDraft] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [importSummary, setImportSummary] = useState(null);
   const importRef = useRef();
 
   const saveBodyweight = () => {
@@ -801,6 +815,16 @@ function App(){
     setExpandedEx(null);
     vibrate([100,60,100]);
   };
+  const mergeRecords = (base, incoming) => {
+    const out = [...base];
+    let added = 0, updated = 0;
+    incoming.forEach(rec => {
+      if (!rec || !rec.date || !rec.exercise_name || !Array.isArray(rec.sets)) return;
+      const idx = out.findIndex(r => r.date===rec.date && normName(r.exercise_name)===normName(rec.exercise_name) && (r.session_key||'')===(rec.session_key||''));
+      if (idx >= 0){ out[idx] = rec; updated++; } else { out.push(rec); added++; }
+    });
+    return { out, added, updated };
+  };
   const importHistory = (e) => {
     const f = e.target.files[0];
     if (!f) return;
@@ -808,17 +832,39 @@ function App(){
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-        let hist, nts = null;
-        if (Array.isArray(data)) hist = data;                       // formato antiguo
-        else if (data && Array.isArray(data.historial)){ hist = data.historial; nts = data.notas || null; }
-        else throw new Error();
-        saveHist(hist);
-        setHistory(hist);
-        if (nts){ saveNotes(nts); setNotes(nts); }
-        if (data.peso_corporal){ saveBW(data.peso_corporal); setBodyweight(data.peso_corporal); }
-        if (data.sesiones){ saveSessMeta(data.sesiones); setSessMeta(data.sesiones); }
-        showToast('Historial restaurado ('+hist.length+' registros)');
-      } catch(err){ showToast('Archivo no válido'); }
+        let recs = [], nNotes = {}, nBW = {}, tipo = '';
+
+        if (Array.isArray(data)){                                   // formato antiguo (array plano)
+          recs = data; tipo = 'Historial (formato antiguo)';
+        } else if (data && Array.isArray(data.historial)){          // backup completo → restaura todo
+          saveHist(data.historial); setHistory(data.historial);
+          if (data.notas){ saveNotes(data.notas); setNotes(data.notas); }
+          if (data.peso_corporal){ saveBW(data.peso_corporal); setBodyweight(data.peso_corporal); }
+          if (data.sesiones){ saveSessMeta(data.sesiones); setSessMeta(data.sesiones); }
+          const fechas = [...new Set(data.historial.map(r=>r.date))].sort();
+          setImportSummary({ tipo:'Backup completo (reemplaza todo)', registros: data.historial.length, fechas });
+          setMenuOpen(false); e.target.value = ''; return;
+        } else if (data && Array.isArray(data.ejercicios)){         // sesión individual
+          recs = data.ejercicios; tipo = 'Sesión'+(data.entreno ? ': '+data.entreno : '');
+          if (data.fecha && data.notas_sesion) nNotes[data.fecha] = data.notas_sesion;
+          if (data.fecha && data.peso_corporal_kg != null) nBW[data.fecha] = data.peso_corporal_kg;
+        } else if (data && Array.isArray(data.sesiones) && data.sesiones.length && Array.isArray(data.sesiones[0].ejercicios)){  // semana
+          tipo = 'Semana '+(data.semana != null ? data.semana : '');
+          data.sesiones.forEach(s => {
+            recs = recs.concat(s.ejercicios || []);
+            if (s.fecha && s.notas_sesion) nNotes[s.fecha] = s.notas_sesion;
+            if (s.fecha && s.peso_corporal_kg != null) nBW[s.fecha] = s.peso_corporal_kg;
+          });
+        } else throw new Error();
+
+        // Merge (no reemplaza): añade o actualiza registros por fecha+ejercicio+sesión
+        const { out, added, updated } = mergeRecords(history, recs);
+        saveHist(out); setHistory(out);
+        if (Object.keys(nNotes).length){ const nn = {...notes, ...nNotes}; saveNotes(nn); setNotes(nn); }
+        if (Object.keys(nBW).length){ const nb = {...bodyweight, ...nBW}; saveBW(nb); setBodyweight(nb); }
+        const fechas = [...new Set(recs.map(r=>r.date))].sort();
+        setImportSummary({ tipo, registros: recs.length, nuevos: added, actualizados: updated, fechas });
+      } catch(err){ showToast('❌ Archivo no válido: sube un export de GymBro (.json)'); }
     };
     reader.readAsText(f);
     setMenuOpen(false);
@@ -886,6 +932,10 @@ function App(){
           {DAY_NAMES[effectiveDay.day]}{isToday ? ' · hoy' : ''}
           {effectiveDay.duration ? ' · ⏱ '+effectiveDay.duration : ''}
           {week.volume_progression && week.volume_progression.note ? ' · '+week.volume_progression.note : ''}
+          {(() => {
+            const rec = history.find(r => r.session_key === sessionKey);
+            return rec ? <span style={{color:'var(--green)'}}> · ✓ entrenado el {rec.date}</span> : null;
+          })()}
         </div>
 
         <div className="day-nav">
@@ -991,6 +1041,23 @@ function App(){
             <div className="dlg-actions">
               <button className="dlg-cancel" onClick={()=>setBwOpen(false)}>Cancelar</button>
               <button className="dlg-save" onClick={saveBodyweight}>Guardar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {importSummary && (
+        <div className="overlay" onClick={()=>setImportSummary(null)}>
+          <div className="dialog" onClick={e=>e.stopPropagation()}>
+            <h3>✔ Importación correcta</h3>
+            <div className="dlg-sub">
+              <b>{importSummary.tipo}</b><br/>
+              {importSummary.registros} registros de ejercicio
+              {importSummary.nuevos != null ? ' ('+importSummary.nuevos+' nuevos, '+importSummary.actualizados+' actualizados)' : ''}<br/>
+              Fechas: {importSummary.fechas.join(', ')}<br/><br/>
+              Navega a esas semanas para ver las sesiones registradas.
+            </div>
+            <div className="dlg-actions">
+              <button className="dlg-save" onClick={()=>setImportSummary(null)}>OK</button>
             </div>
           </div>
         </div>
