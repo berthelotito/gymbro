@@ -1,5 +1,5 @@
 // Service worker: cachea la app y sus dependencias para uso offline en el gimnasio
-const CACHE = 'gym-tracker-v1';
+const CACHE = 'gymbro-v2';
 const ASSETS = [
   './',
   './index.html',
