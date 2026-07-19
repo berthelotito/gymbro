@@ -94,6 +94,9 @@ input{font-family:"DM Mono",monospace;}
 .notes-sub{color:var(--dim2);font-size:12px;margin-top:2px;}
 .notes-area{width:100%;min-height:90px;margin-top:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:"Inter",sans-serif;font-size:15px;padding:10px;resize:vertical;}
 .notes-area:focus{outline:none;border-color:var(--blue);}
+.logdate-row{display:flex;align-items:center;gap:10px;margin-top:12px;background:var(--bg-card);border:1px solid var(--border2);border-radius:12px;padding:10px 14px;font-size:13.5px;color:var(--dim);}
+.logdate-row input[type=date]{background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text);height:44px;padding:0 10px;font-family:"DM Mono",monospace;font-size:15px;color-scheme:dark;}
+.logdate-row .ld-warn{color:var(--orange);font-weight:600;font-size:12.5px;}
 .ex-done-count{font-size:12px;color:var(--green);margin-top:6px;font-family:"DM Mono",monospace;}
 
 /* ------- Set rows ------- */
@@ -392,9 +395,9 @@ function SetRow({idx, total, data, ref_, isTime, hasWeight, optionalWeight, onCh
   );
 }
 
-function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded, onToggle, target, onSetTarget, bwKg, onNoBW, cardId}){
-  const today = todayStr();
-  const lastRec = useMemo(()=>lastSessionFor(history, ex.name, today), [history, ex.name]);
+function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded, onToggle, target, onSetTarget, bwKg, onNoBW, cardId, logDate}){
+  const today = logDate;   // fecha con la que se registra (por defecto hoy, editable)
+  const lastRec = useMemo(()=>lastSessionFor(history, ex.name, today), [history, ex.name, today]);
   const prog = useMemo(()=>progression(ex, lastRec, dayCtx), [ex, lastRec, dayCtx]);
   const hasWeight = true;                          // el core también admite lastre/polea
   const optionalWeight = ex.kind === 'core';       // en core el peso es opcional
@@ -405,7 +408,7 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
   // Registro de hoy (si existe) para hidratar el estado
   const todayRec = useMemo(()=>history.find(r =>
     r.date === today && normName(r.exercise_name) === normName(ex.name) && r.session_key === sessionKey
-  ), [history, ex.name, sessionKey]);
+  ), [history, ex.name, sessionKey, today]);
 
   // Registro histórico de ESTA sesión del plan (otra fecha): para revisar semanas ya entrenadas
   const pastRec = useMemo(()=>{
@@ -415,7 +418,7 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
     if (!recs.length) return null;
     recs.sort((a,b) => a.date < b.date ? 1 : -1);
     return recs[0];
-  }, [history, ex.name, sessionKey]);
+  }, [history, ex.name, sessionKey, today]);
 
   const fmtSet = (s) => (s.pc ? 'PC ' : '') + (s.weight_kg != null ? fmtKg(s.weight_kg)+'kg×' : '') + s.reps + (isTime?'s':'') + (s.rir != null ? '@R'+s.rir : '');
 
@@ -436,7 +439,7 @@ function ExerciseCard({ex, num, dayCtx, history, sessionKey, onSetDone, expanded
     return { weight: w, reps: '', rir: '', pc, done:false };
   });
   const [rows, setRows] = useState(initialRows);
-  useEffect(()=>{ setRows(initialRows()); }, [ex.raw, sessionKey]); // reset al cambiar de día/ejercicio
+  useEffect(()=>{ setRows(initialRows()); }, [ex.raw, sessionKey, today]); // reset al cambiar de día/ejercicio
 
   const change = (i, field, val) => setRows(rs => rs.map((r,j)=> {
     if (j!==i) return r;
@@ -580,6 +583,7 @@ function App(){
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [importSummary, setImportSummary] = useState(null);
+  const [logDate, setLogDate] = useState(todayStr());   // fecha con la que se registran las series
   const importRef = useRef();
 
   const saveBodyweight = () => {
@@ -648,6 +652,7 @@ function App(){
   } : {is_deload:false, hsr:false, bridge:false};
 
   const sessionKey = selWeek+'-'+ (effectiveDay ? effectiveDay.day : 0);
+  useEffect(()=>{ setLogDate(todayStr()); }, [sessionKey]);   // al cambiar de día/semana, volver a hoy
 
   /* --- Timer --- */
   useEffect(()=>{
@@ -674,7 +679,7 @@ function App(){
 
   /* --- Guardar serie --- */
   const onSetDone = useCallback((ex, setNum, weight, reps, rir, pc, nextSetLabel) => {
-    const today = todayStr();
+    const today = logDate;
     setHistory(h => {
       const nh = [...h];
       let rec = nh.find(r => r.date===today && normName(r.exercise_name)===normName(ex.name) && r.session_key===sessionKey);
@@ -694,7 +699,7 @@ function App(){
     const nextLabel = nextSetLabel || nextExerciseName(ex);
     startTimer(ex.restSec || 60, nextLabel);
     if (!nextSetLabel) advanceToNext(ex);   // última serie → pasar al siguiente ejercicio
-  }, [sessionKey, selWeek, effectiveDay]);
+  }, [sessionKey, selWeek, effectiveDay, logDate]);
 
   /* --- Bloques del día --- */
   const blocks = useMemo(()=>{
@@ -805,7 +810,7 @@ function App(){
     setMenuOpen(false);
   };
   const finishSession = () => {
-    const today = todayStr();
+    const today = logDate;
     setSessMeta(s => {
       const ns = {...s, [today]: { session_key: sessionKey, finished_at: new Date().toISOString() }};
       saveSessMeta(ns);
@@ -946,6 +951,15 @@ function App(){
           <button className="nav-btn" disabled={strengthIdx === strengthDays.length-1} onClick={()=>goStrength(1)}>→</button>
         </div>
 
+        {effectiveDay.type === 'strength' && (
+          <div className="logdate-row">
+            <span>📅 Fecha del registro:</span>
+            <input type="date" value={logDate} max={todayStr()}
+              onChange={e=>setLogDate(e.target.value || todayStr())} />
+            {logDate !== todayStr() && <span className="ld-warn">≠ hoy</span>}
+          </div>
+        )}
+
         {effectiveDay.type !== 'strength' ? (
           <div className="restday">
             <div className="rd-emoji">{effectiveDay.type==='easy_run' ? '🏃' : effectiveDay.type==='mobility' ? '🧘' : '😴'}</div>
@@ -988,6 +1002,7 @@ function App(){
                   bwKg={lastBW ? lastBW.kg : null}
                   onNoBW={()=>{ showToast('Registra primero tu peso corporal'); setBwDraft(''); setBwOpen(true); }}
                   cardId={id}
+                  logDate={logDate}
                   expanded={expandedEx === id}
                   onToggle={()=>setExpandedEx(e => e===id ? null : id)} />
               );
@@ -996,17 +1011,17 @@ function App(){
             <div className="notes-card">
               <div className="notes-title">📝 NOTAS DE LA SESIÓN</div>
               <div className="notes-sub">
-                {isToday
+                {logDate === todayStr()
                   ? 'Sensaciones, molestias, energía, sueño… Se incluyen al exportar la sesión.'
-                  : 'Estás viendo otro día del plan, pero las series y notas se guardan con la fecha de hoy ('+todayStr()+').'}
+                  : 'Registrando con fecha '+logDate+' — las series y notas se guardan con esa fecha.'}
               </div>
               <textarea className="notes-area" placeholder="Ej: codo bien hoy, banca costó más de lo normal, dormí 6h…"
-                value={notes[todayStr()] || ''}
-                onChange={e=>setNoteFor(todayStr(), e.target.value)} />
+                value={notes[logDate] || ''}
+                onChange={e=>setNoteFor(logDate, e.target.value)} />
             </div>
 
             {(() => {
-              const today = todayStr();
+              const today = logDate;
               const todayRecs = history.filter(r => r.date === today && r.session_key === sessionKey);
               const totalSets = todayRecs.reduce((a,r)=>a+r.sets.length, 0);
               const finished = sessMeta[today] && sessMeta[today].session_key === sessionKey;
