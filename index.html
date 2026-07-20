@@ -68,6 +68,9 @@ input{font-family:"DM Mono",monospace;}
 .info-block .ib-title{color:var(--text);font-weight:600;font-size:14px;}
 .info-block.proto{border-color:rgba(34,197,94,.35);}
 .info-block.proto .ib-title{color:#86efac;}
+.info-item{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);}
+.info-item .ii-txt{flex:1;font-size:13.5px;line-height:1.4;}
+.ii-video{width:44px;height:44px;flex-shrink:0;border-radius:10px;background:var(--bg-input);border:1px solid var(--border2);font-size:17px;color:var(--dim);}
 .ib-time{color:var(--dim2);font-size:12px;font-family:"DM Mono",monospace;}
 
 /* ------- Exercise cards ------- */
@@ -257,6 +260,31 @@ function parseCoreExercise(str){
   };
 }
 // Devuelve lista de bloques: {kind:'info'|'proto'|'exercise'|'core', ...}
+// Sub-parsea bloques informativos (calentamiento, vuelta a la calma) en ejercicios individuales
+// Soporta: numeración ①②③…, separadores '+' y '·', y grupos entre paréntesis
+function parseInfoItems(desc){
+  const ci = desc.indexOf(':');
+  if (ci < 0) return null;
+  const title = desc.slice(0, ci).trim();
+  const rest = desc.slice(ci+1).trim();
+  let items = [];
+  if (/[①②③④⑤⑥⑦⑧⑨⑩⑪⑫]/.test(rest)){
+    items = rest.split(/[①②③④⑤⑥⑦⑧⑨⑩⑪⑫]/).map(s=>s.replace(/^[·\s]+|[·\s]+$/g,'').trim()).filter(Boolean);
+  } else {
+    const parens = [];
+    const outside = rest.replace(/\(([^)]*)\)/g, (m,g)=>{ parens.push(g); return ' '; });
+    outside.split(/\s*[+·]\s*/).forEach(s=>{ s=s.trim(); if(s) items.push(s); });
+    parens.forEach(g => g.split(/\s*[+·]\s*/).forEach(s=>{ s=s.trim(); if(s) items.push(s); }));
+  }
+  if (items.length < 2) return null;
+  return { title, items };
+}
+// Query de búsqueda limpia para un item: nombre sin reps/tiempos
+function itemQuery(item){
+  return item.split('—')[0].split(/\s+/).filter(t=>!/\d/.test(t) && !/^(min|s|seg|x)$/i.test(t)).join(' ')
+    .replace(/[()·,:]/g,' ').replace(/\s+/g,' ').trim();
+}
+
 function parsePhase(phase){
   const desc = phase.desc || '';
   if (/calentamiento|vuelta a la calma/i.test(desc))
@@ -984,6 +1012,22 @@ function App(){
 
             {blocks.map((b, i) => {
               if (b.kind === 'info' || b.kind === 'proto'){
+                const parsed = b.kind === 'info' ? parseInfoItems(b.title) : null;
+                if (parsed){
+                  return (
+                    <div key={i} className="info-block">
+                      <span className="ib-title">▸ {parsed.title}</span>
+                      {b.time && <span className="ib-time"> · {b.time}</span>}
+                      {parsed.items.map((it, j) => (
+                        <div key={j} className="info-item">
+                          <span className="ii-txt">{it}</span>
+                          <button className="ii-video" title="Ver en YouTube"
+                            onClick={()=>window.open('https://www.youtube.com/results?search_query='+encodeURIComponent('técnica '+itemQuery(it)+' ejercicio'), '_blank')}>🎬</button>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
                 return (
                   <div key={i} className={'info-block'+(b.kind==='proto'?' proto':'')}>
                     <span className="ib-title">▸ {b.title}</span>
